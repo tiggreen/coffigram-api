@@ -1,0 +1,27 @@
+{
+  "name": "coffee-api",
+  "version": "1.0.0",
+  "description": "Discover great coffee shops in NYC & SF with instagram photos.",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tiggreen/coffee-api.git"
+  },
+  "keywords": [
+    "coffee",
+    "discover",
+    "coffeeshapp"
+  ],
+  "author": "Tigran Hakobyan",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tiggreen/coffee-api/issues"
+  },
+  "homepage": "https://github.com/tiggreen/coffee-api",
+  "dependencies": {
+    "express": "^4.11.2"
+  }
+}
