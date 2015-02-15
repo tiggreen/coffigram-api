@@ -180,6 +180,7 @@ app.use(function(req, res){
 
 /* istanbul ignore next */
 if (!module.parent) {
-  app.listen(process.env.PORT || 3001);
-  console.log('Express started on port 3001');
+  var port = process.env.PORT || 3000
+  app.listen(port);
+  console.log('Express started on port ' + port);
 }
