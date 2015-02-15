@@ -19,6 +19,7 @@ var foursquare = require('node-foursquare-venues')
                  process.env.FOURSQUARE_CLIENT_SECRET)
 
 
+
 var app = module.exports = express();
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }));
