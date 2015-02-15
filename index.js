@@ -141,7 +141,6 @@ app.get('/api', function(req, res, next){
 });
 
 app.get('/api/get_sf_photos', function(req, res, next) {
-
   foursquare.venues.search({
     near: 'San Francisco, CA',
     categoryId: '4bf58dd8d48988d1e0931735'
