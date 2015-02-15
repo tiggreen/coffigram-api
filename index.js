@@ -7,37 +7,34 @@ Instagram = require('instagram-node-lib');
 var bodyParser = require('body-parser');
 var request = require("request");
 async = require("async")
+var cors = require('cors')
 
-Instagram.set('client_id', 'bc79f78daa3b4276894bfb0555ecd491');
-Instagram.set('client_secret', '2cf97c4759124e57b34e75a28f9ceb1d');
+Instagram.set('client_id', process.env.INSTAGRAM_CLIENT_ID);
+Instagram.set('client_secret', process.env.INSTAGRAM_CLIENT_SECRET);
+
+Instagram.set('maxSockets', 50);
 
 var foursquare = require('node-foursquare-venues')
-                ('GNX5TWTVWKK04UQSGDG1TNNPUZIBVYRPRSYWHW5SB5WGSEBJ', 
-                 'YPPTJP2Z2FFI021EZXA0EJN2UNYFPEEREVULTBVHFYRWUQTD')
+                (process.env.FOURSQUARE_CLIENT_ID, 
+                 process.env.FOURSQUARE_CLIENT_SECRET)
+
 
 var app = module.exports = express();
-
 // parse application/x-www-form-urlencoded
-app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.urlencoded({ extended: false }));
 // parse application/json
-app.use(bodyParser.json())
-
-
+app.use(bodyParser.json());
+app.use(cors());
 
 
 // create an error with .status. we
 // can then use the property in our
 // custom error handler (Connect repects this prop as well)
-
 function error(status, msg) {
   var err = new Error(msg);
   err.status = status;
   return err;
 }
-
-// if we wanted to supply more than JSON, we could
-// use something similar to the content-negotiation
-// example.
 
 // here we validate the API key,
 // by mounting this middleware to /api
@@ -45,7 +42,7 @@ function error(status, msg) {
 // will cause this middleware to be invoked
 
 app.use('/api', function(req, res, next){
-  var key = 'foo'; // req.query['api-key'];
+  var key = 'Aj2lC55I3l50D965Z6xpvzkcML3OJF36'
 
   // key isn't present
   if (!key) return next(error(400, 'api key required'));
@@ -62,15 +59,13 @@ app.use('/api', function(req, res, next){
 // account info with some sort of database like redis.
 // api keys do _not_ serve as authentication, merely to
 // track API usage or help prevent malicious behavior etc.
-
-var apiKeys = ['foo', 'bar', 'baz'];
+var apiKeys = [process.env.API_KEY];
 
 
 // we now can assume the api key is valid,
 // and simply expose the data
-
 app.get('/api', function(req, res, next){
-  res.send('Hello this is the coffee API speaking now!');
+  res.send('Hello this is Coffigram API speaking!');
 });
 
 var calc = function(num, callback) {
@@ -82,7 +77,6 @@ var get_instagram_loc_id = function(venue, callback) {
   //console.log(venue);
   
   Instagram.locations.search({ 
-
     foursquare_v2_id: venue.id,
     complete: function(data){
       return callback(null, data);
@@ -99,15 +93,11 @@ var get_instagram_loc_id = function(venue, callback) {
 
 var get_media = function(place, callback_media) {
 
-
   Instagram.locations.recent({ 
-
     location_id: place[0].id,
     complete: function(data, pagination){
-      console.log(data);
-      console.log("*****************************************************************");
       // we should return pagination instead so the result set is smaller.
-      return callback_media(null, data);
+      return callback_media(null, pagination);
     }, 
     error: function(errorMessage, errorObject, caller) {
       console.log(errorMessage);
@@ -119,35 +109,29 @@ var get_media = function(place, callback_media) {
   });
 }
 
-
-
 app.get('/api/get_nyc_photos', function(req, res, next) {
   
   foursquare.venues.search({
     near: 'New York City, NY',
     categoryId: '4bf58dd8d48988d1e0931735',
-    limit: 100,
+    limit: 50,
   }, function(err, data) {
 
     if (! err) {
       var venues = data.response.venues;
-
       async.map(venues, get_instagram_loc_id, function(err, places){
         if (! err  && places) {
-          // res.send(places);
           // at this point we have bunch of instagram coffee shops (places).
           async.map(places, get_media, function(err, pics){
             if (! err && pics) {
-
               // at this point we have an array of pics
-              res.send(pics);
+              res.send({'pics':pics, 'venues':venues});
             }
           });
         }
       });
 
     } else next();
-
   })
 
 });
@@ -173,8 +157,6 @@ app.get('/api/get_sf_photos', function(req, res, next) {
 
   })
 });
-
-
 
 // middleware with an arity of 4 are considered
 // error handling middleware. When you next(err)
