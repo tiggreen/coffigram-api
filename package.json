@@ -28,6 +28,7 @@
     "express": "^4.11.2",
     "instagram-node-lib": "^0.1.1",
     "node-foursquare-venues": "^1.1.0",
-    "request": "^2.53.0"
+    "request": "^2.53.0",
+    "yelp": "^0.1.1"
   }
 }
