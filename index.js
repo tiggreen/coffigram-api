@@ -13,7 +13,7 @@ var cors = require('cors')
 Instagram.set('client_id', process.env.INSTAGRAM_CLIENT_ID);
 Instagram.set('client_secret', process.env.INSTAGRAM_CLIENT_SECRET);
 
-Instagram.set('maxSockets',  10);
+Instagram.set('maxSockets',  50);
 
 var foursquare = require('node-foursquare-venues')
                 (process.env.FOURSQUARE_CLIENT_ID,
