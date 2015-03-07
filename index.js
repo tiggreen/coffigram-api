@@ -13,7 +13,7 @@ var cors = require('cors')
 Instagram.set('client_id', process.env.INSTAGRAM_CLIENT_ID);
 Instagram.set('client_secret', process.env.INSTAGRAM_CLIENT_SECRET);
 
-Instagram.set('maxSockets', 50);
+Instagram.set('maxSockets',  50);
 
 var foursquare = require('node-foursquare-venues')
                 (process.env.FOURSQUARE_CLIENT_ID, 
@@ -23,7 +23,7 @@ var yelp = require("yelp").createClient({
   consumer_key: process.env.YELP_CONSUMER_KEY,
   consumer_secret: process.env.YELP_CONSUMER_SECRET ,
   token: process.env.YELP_TOKEN,
-  token_secret: process.env.YELP_TOKEN_SECRET
+  token_secret: process.env.YELP_TOKEN_SECRET 
 });
 
 
