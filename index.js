@@ -13,26 +13,27 @@ var cors = require('cors')
 Instagram.set('client_id', process.env.INSTAGRAM_CLIENT_ID);
 Instagram.set('client_secret', process.env.INSTAGRAM_CLIENT_SECRET);
 
-Instagram.set('maxSockets',  50);
+Instagram.set('maxSockets',  10);
 
 var foursquare = require('node-foursquare-venues')
-                (process.env.FOURSQUARE_CLIENT_ID, 
+                (process.env.FOURSQUARE_CLIENT_ID,
                  process.env.FOURSQUARE_CLIENT_SECRET)
 
 var yelp = require("yelp").createClient({
   consumer_key: process.env.YELP_CONSUMER_KEY,
   consumer_secret: process.env.YELP_CONSUMER_SECRET ,
   token: process.env.YELP_TOKEN,
-  token_secret: process.env.YELP_TOKEN_SECRET 
+  token_secret: process.env.YELP_TOKEN_SECRET
 });
 
 
 var app = module.exports = express();
+
+app.use(cors());
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }));
 // parse application/json
 app.use(bodyParser.json());
-app.use(cors());
 
 
 // create an error with .status. we
@@ -72,14 +73,14 @@ var apiKeys = [process.env.API_KEY];
 
 // we now can assume the api key is valid,
 // and simply expose the data
-app.get('/api', function(req, res, next){
+app.get('/api',function(req, res, next){
   res.send('Hello this is Coffigram api speaking!');
 });
 
 
 /*
 * Match foursquare venue to the instagram location. 
-* 
+*
 */
 var get_instagram_loc_id = function(venue, callback) {
   Instagram.locations.search({ 
@@ -102,16 +103,15 @@ var get_instagram_loc_id = function(venue, callback) {
 * items that were taken in that place.
 */
 var get_media = function(place, callback_media) {
-  Instagram.locations.recent({ 
-    location_id: place[0].id,
-    complete: function(data, pagination){
-      return callback_media(null, pagination);
-    }, 
-    // error: function(errorMessage, errorObject, caller) {
-    //   console.log(errorMessage);
-    //   return callback_media(errorObject, null);
-    // }
-  });
+  console.log(place);
+  if (place.length > 0) {
+    Instagram.locations.recent({
+      location_id: place[0].id,
+      complete: function(data, pagination){
+        return callback_media(null, pagination);
+      }
+    });
+  } else return callback_media('', null);
 }
 
 /*
@@ -154,6 +154,7 @@ app.get('/api/get_nyc_photos', function(req, res, next) {
       var venues = data.response.venues;
       async.map(venues, get_instagram_loc_id, function(error, places){
         if (! error  && places) {
+
           // at this point we have bunch of instagram coffee shops (places).
           async.map(places, get_media, function(err_pics, pics){
             if (! err_pics && pics) {
@@ -162,8 +163,10 @@ app.get('/api/get_nyc_photos', function(req, res, next) {
                   res.send({'pics':pics, 'venues':info});
                 } else next();
               });
+
             } else next();
           });
+
         } else next();
       });
 
@@ -173,8 +176,8 @@ app.get('/api/get_nyc_photos', function(req, res, next) {
 
 
 /*
-* Get all the photos with their info of SF. 
-* 
+* Get all the photos with their info of SF.
+*
 */
 app.get('/api/get_sf_photos', function(req, res, next) {
   foursquare.venues.search({
